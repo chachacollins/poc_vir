@@ -16,7 +16,8 @@ fn encrypt_dir(dir_path: &str) -> Result<(), Box<dyn std::error::Error>> {
         let path = file?;
 
         let ind_file = fs::read_to_string(path.path())?;
-        println!("{ind_file:?}")
+        println!("{ind_file:?}");
+        let _ = encrypt_files(&ind_file);
     }
     Ok(())
 }
@@ -27,6 +28,13 @@ fn encrypt_files(ind_file: &str) -> Result<(), Box<dyn std::error::Error>> {
     let bits = 2048;
 
     let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate private key");
-    let pub_key = RsaPublicKey::from(priv_key);
+    let pub_key = RsaPublicKey::from(&priv_key);
+
+    let data = ind_file.as_bytes();
+    let enc_data = pub_key
+        .encrypt(&mut rng, Pkcs1v15Encrypt, &data[..])
+        .expect("failed to encrypt");
+
+    println!("{enc_data:?}");
     Ok(())
 }
