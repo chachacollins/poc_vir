@@ -1,3 +1,4 @@
+use core::str;
 use rsa::{Pkcs1v15Encrypt, RsaPrivateKey, RsaPublicKey};
 use std::fs;
 
@@ -48,8 +49,13 @@ fn decrypt_files(
     enc_data: Vec<u8>,
     priv_key: RsaPrivateKey,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let dec_data = priv_key.decrypt(Pkcs1v15Encrypt, &enc_data);
+    let dec_data = priv_key
+        .decrypt(Pkcs1v15Encrypt, &enc_data)
+        .expect("failed to decrypt");
     println!("\n decrypted data");
-    println!(" {dec_data:?}");
+
+    println!(" {:?}", dec_data);
+    let real_data = str::from_utf8(&dec_data)?;
+    println!(" {:?}", real_data);
     Ok(())
 }
